@@ -6,7 +6,6 @@ require_once('lib/kaden-core-dynamixer.php');
 
 $t = new lime_test(9
                    , new lime_output_color());
-
 $t->ok( $dm = new Kaden_Core_Dynamixer(new DummyCx), 'constructer' );
 
 $takashi = new Person($t, $dm, 'takashi');
