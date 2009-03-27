@@ -1,0 +1,48 @@
+Fields:
+  familyname:
+    - length: [64]
+  firstname:
+    - length: [64]
+  familyname_furigana:
+    - katakana
+    - length: [64]
+  firstname_furigana:
+    - katakana
+    - length: [64]
+  company:
+    - length: [1000]
+  zipcode:
+    - zipcode
+  address:
+    - length: [1000]
+  tel:
+    - regexp: ['/[\d\-]+/']
+  mail:
+    - ascii
+Profiles:
+  add_person:
+    required:
+      # redefine familyname's
+      - 
+        familyname:
+          - maxlen: [128]
+          - minlen: [8]
+      - firstname
+      - familyname_furigana
+      - firstname_furigana
+    optional:
+      - company
+      - zipcode
+      - address
+      - tel
+      - mail
+Messages:
+  prefix:   '<span class="error">%s</span>'
+  invalid:  '入力が正しくありません'
+  missing:  '入力がありません'
+  length:   '入力が長すぎるか短すぎます'
+  maxlen:   '入力が長すぎます'
+  minlen:   '入力が短すぎます'
+  katakana: 'カタカナで入力してください'
+  zipcode:  '正しくない郵便番号です'
+  ascii:    '半角英数記号で入力してください'
