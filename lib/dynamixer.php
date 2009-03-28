@@ -1,5 +1,30 @@
 <?php
 
+/**
+ * 
+ * Dynamixer
+ *
+ * This module supports to create dynamic extended classes.
+ *
+ * @author <tatakatata@gmail.com>
+ *
+ * Synopsis
+ *
+ * <code>
+ * class ExtendedClass
+ * {
+ *     var $dynamixer;
+ *     function __construct(){ $this->dynamixer = new Dynamixer; }
+ *     function __get($name){ return $this->dynamixer->get_instance($name); }
+ *     function __call($name, $args){
+ *         return $this->dynamixer->call_assigned_method($name, $args);
+ *     }
+ * }
+ * </code>
+ *
+ *
+ */
+
 class Dynamixer
 {
     var $instances = array();
@@ -29,7 +54,7 @@ class Dynamixer
             $instance = $this->_calling_instance();
         }
         if( isset($this->instances[$name]) ){
-            Kaden_Carp::carp('instance name: `' + $name + '` is used');
+            Carp::carp('instance name: `' + $name + '` is used');
             return false;
         }
         $this->instances[$name] = $instance;
@@ -40,7 +65,7 @@ class Dynamixer
         if( $this->instances[$name] )
             return $this->instances[$name];
         else
-            Kaden_Carp::croak('called undefined property: `' . $name . '`');
+            Carp::croak('called undefined property: `' . $name . '`');
     }
 
     function assign_method($method, $name = null){
@@ -57,18 +82,34 @@ class Dynamixer
         if( !isset($this->methods[$name]) )
             $this->methods[$name] = array();
 
-        array_push($this->methods[$name], array( $instance, $method ));
+        array_unshift($this->methods[$name], array( $instance, $method ));
         return true;
     }
 
     function call_assigned_method($name, $args = array()){
         if( !isset($this->methods[$name]) )
-            Kaden_Carp::croak('called undefined method: `' . $name . '`');
+            Carp::croak('called undefined method: `' . $name . '`');
 
-        foreach($this->methods[$name] as $method)
-            $r = call_user_func_array($method, $args);
+        reset($this->methods[$name]);
+        $r = call_user_func_array(current($this->methods[$name]), $args);
         return $r;
     }
 
+    function next_method(){
+        $backtrace = debug_backtrace();
+
+        foreach($this->methods as $name => $methods){
+            $method = current($methods);
+            if( $method[0] === $backtrace[1]['object'] and $method[1] === $backtrace[1]['function'] ){
+                $next = next($methods);
+                break;
+            }
+        }
+
+        if( $next )
+            $r = call_user_func_array($next, $backtrace[0]['args']);
+
+        return $r;
+    }
 };
 
