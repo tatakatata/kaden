@@ -1,14 +1,11 @@
 <?php
 
-class Kaden_Core_Dynamixer
+class Dynamixer
 {
     var $instances = array();
     var $methods   = array();
-    var $cx;
 
-    function __construct($cx){
-        $this->cx = $cx;
-    }
+    function __construct(){}
 
     function _calling_instance(){
         $backtrace = debug_backtrace();
@@ -17,20 +14,13 @@ class Kaden_Core_Dynamixer
     }
 
     function load($component, $classname = ''){
-        /*
-        if( strpos($component, '+') === 0 )
-            $component = substr($component, 1);
-        else
-            $component = 'kaden-' . $component;
-        */
         if( file_exists($component . '.php') )
             require_once($component . '.php');
 
         if( $classname === '' )
             $classname = preg_replace('/-/', '_', $component);
 
-        $instance = new $classname($this->cx);
-        $this->set_instance($instance, strtolower($classname));
+        return new $classname();
     }
 
     function set_instance($instance, $name = null){
@@ -39,7 +29,7 @@ class Kaden_Core_Dynamixer
             $instance = $this->_calling_instance();
         }
         if( isset($this->instances[$name]) ){
-            Kaden_Carp::carp('instance `' + $name + '` is used');
+            Kaden_Carp::carp('instance name: `' + $name + '` is used');
             return false;
         }
         $this->instances[$name] = $instance;
@@ -63,11 +53,6 @@ class Kaden_Core_Dynamixer
 
         if( is_null($name) )
             $name = $method;
-
-        if( method_exists($this->cx, $name) ){
-            Kaden_Carp::carp('method name `' + $name + '` is used');
-            return false;
-        }
 
         if( !isset($this->methods[$name]) )
             $this->methods[$name] = array();
